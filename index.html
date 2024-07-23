@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"/>
+
+  <title>브랜드페이 위젯 샘플 프로젝트</title>
+  <script src="https://js.tosspayments.com/v1/brandpay"></script>
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      -ms-scrollbar-style: none;
+      scrollbar-width: none;
+    }
+
+    html::-webkit-scrollbar {
+      display: none;
+    }
+
+    body::-webkit-scrollbar {
+      display: none;
+    }
+
+    #__tosspayments_brandpay_iframe__ {
+      position: relative !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      margin: 0 !important;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      -ms-scrollbar-style: none;
+      scrollbar-width: none;
+    }
+
+    .wrapper::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+<script defer>
+  var brandpay = null
+
+  const receiver = navigator.userAgent.includes('Android') ? document : window
+  const reactNativeWebview = window.ReactNativeWebView
+
+  const ACTIONS = {
+    INIT_BRAND_PAY: (data) => {
+      const {clientKey, customerKey, redirectUrl} = data
+      brandpay = BrandPay(clientKey, customerKey, {redirectUrl})
+    },
+    ADD_PAYMENT_METHOD: async (paymentMethod) => {
+      try {
+        const methods = await brandpay.addPaymentMethod(paymentMethod)
+        const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS', data: methods}
+        const sendMessage = JSON.stringify(sendObj)
+        reactNativeWebview.postMessage(sendMessage)
+        receiver.removeEventListener('message', handleMessage)
+      } catch (e) {
+        ACTIONS.ERROR_HANDLER(e, 'ADD_PAYMENT_METHOD')
+      }
+    },
+    REQUEST_PAYMENT: async (paymentData) => {
+      try {
+        const methods = await brandpay.requestPayment(paymentData)
+        const sendObj = {key: 'REQUEST_PAYMENT', status: 'SUCCESS', data: methods}
+        const sendMessage = JSON.stringify(sendObj)
+        reactNativeWebview.postMessage(sendMessage)
+        receiver.removeEventListener('message', handleMessage)
+      } catch (e) {
+        ACTIONS.ERROR_HANDLER(e, 'REQUEST_PAYMENT')
+      }
+    },
+    GO_BACK: () => {
+      const sendObj = {key: 'GO_BACK', status: 'FAILED'}
+      const sendMessage = JSON.stringify(sendObj)
+      reactNativeWebview.postMessage(sendMessage)
+      receiver.removeEventListener('message', handleMessage)
+    },
+    ERROR_HANDLER: (e, occurredSite) => {
+      const sendObj = {
+        key: e.code ?? 'UNKNOWN_ERROR',
+        status: 'FAILED',
+        data: {
+          log: e,
+          message: e.message,
+          occurredSite,
+        }
+      }
+
+      const sendMessage = JSON.stringify(sendObj)
+      reactNativeWebview.postMessage(sendMessage)
+      receiver.removeEventListener('message', handleMessage)
+    }
+  }
+
+  const handleMessage = (event) => {
+    try {
+      reactNativeWebview.postMessage(JSON.stringify(event))
+      const data = !event.data || event.data === 'undefined' ? null : JSON.parse(event.data)
+
+      if (data === null) {
+        throw new Error('data 없음')
+      }
+
+      if (brandpay === null) {
+        reactNativeWebview.postMessage(JSON.stringify({data: '브랜드페이 객체 생성'}))
+        ACTIONS.INIT_BRAND_PAY(data.initData)
+      }
+
+      reactNativeWebview.postMessage(JSON.stringify({data: data.key}))
+      ACTIONS[data.key](data.args)
+    } catch (e) {
+      reactNativeWebview.postMessage(JSON.stringify({message: e.message}))
+    }
+  }
+
+  reactNativeWebview.postMessage(JSON.stringify({data: "호출 시작"}))
+  receiver.addEventListener('message', handleMessage)
+</script>
+
+<div class="wrapper">
+  <img src="https://image.snack24h.com/static/images/wefun-logo.png" alt="위펀 로고"
+       onclick="ACTIONS.GO_BACK()"/>
+</div>
+</body>
+</html>
