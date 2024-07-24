@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5"/>
 
   <title>브랜드페이 위젯 샘플 프로젝트</title>
-  <script src="https://js.tosspayments.com/v1/brandpay"></script>
+  <script src="https://js.tosspayments.com/v2/standard"></script>
 
   <style>
     html, body {
@@ -62,12 +62,13 @@
   const ACTIONS = {
     INIT_BRAND_PAY: (data) => {
       const {clientKey, customerKey, redirectUrl} = data
-      brandpay = BrandPay(clientKey, customerKey, {redirectUrl})
+      const tossPayments = TossPayments(clientKey)
+      brandpay = tossPayments.brandpay({customerKey, redirectUrl})
     },
-    ADD_PAYMENT_METHOD: async (paymentMethod) => {
+    ADD_PAYMENT_METHOD: async () => {
       try {
-        const methods = await brandpay.addPaymentMethod(paymentMethod)
-        const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS', data: methods}
+        await brandpay.addPaymentMethod()
+        const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS'}
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
@@ -84,6 +85,17 @@
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
         ACTIONS.ERROR_HANDLER(e, 'REQUEST_PAYMENT')
+      }
+    },
+    OPEN_SETTINGS: async () => {
+      try {
+        await brandpay.openSettings()
+        const sendObj = {key: 'OPEN_SETTINGS', status: 'SUCCESS'}
+        const sendMessage = JSON.stringify(sendObj)
+        reactNativeWebview.postMessage(sendMessage)
+        receiver.removeEventListener('message', handleMessage)
+      } catch (e) {
+        ACTIONS.ERROR_HANDLER(e, 'OPEN_SETTINGS')
       }
     },
     GO_BACK: () => {
