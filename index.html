@@ -61,12 +61,14 @@
 
   const ACTIONS = {
     INIT_BRAND_PAY: (data) => {
+      reactNativeWebview.postMessage(JSON.stringify({message: 'INIT_BRAND_PAY'}))
       const {clientKey, customerKey, redirectUrl} = data
       const tossPayments = TossPayments(clientKey)
       brandpay = tossPayments.brandpay({customerKey, redirectUrl})
     },
     ADD_PAYMENT_METHOD: async () => {
       try {
+        reactNativeWebview.postMessage(JSON.stringify({message: 'ADD_PAYMENT_METHOD'}))
         await brandpay.addPaymentMethod()
         const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS'}
         const sendMessage = JSON.stringify(sendObj)
@@ -78,6 +80,7 @@
     },
     REQUEST_PAYMENT: async (paymentData) => {
       try {
+        reactNativeWebview.postMessage(JSON.stringify({message: 'REQUEST_PAYMENT'}))
         const methods = await brandpay.requestPayment(paymentData)
         const sendObj = {key: 'REQUEST_PAYMENT', status: 'SUCCESS', data: methods}
         const sendMessage = JSON.stringify(sendObj)
@@ -89,6 +92,7 @@
     },
     OPEN_SETTINGS: async () => {
       try {
+        reactNativeWebview.postMessage(JSON.stringify({message: 'OPEN_SETTINGS'}))
         await brandpay.openSettings()
         const sendObj = {key: 'OPEN_SETTINGS', status: 'SUCCESS'}
         const sendMessage = JSON.stringify(sendObj)
@@ -99,6 +103,7 @@
       }
     },
     GO_BACK: () => {
+      reactNativeWebview.postMessage(JSON.stringify({message: 'GO_BACK'}))
       const sendObj = {key: 'GO_BACK', status: 'FAILED'}
       const sendMessage = JSON.stringify(sendObj)
       reactNativeWebview.postMessage(sendMessage)
@@ -135,14 +140,12 @@
         ACTIONS.INIT_BRAND_PAY(data.initData)
       }
 
-      reactNativeWebview.postMessage(JSON.stringify({message: data.key}))
       ACTIONS[data.key](data?.args)
     } catch (e) {
       reactNativeWebview.postMessage(JSON.stringify({message: e.message}))
     }
   }
 
-  reactNativeWebview.postMessage(JSON.stringify({data: "호출 시작"}))
   receiver.addEventListener('message', handleMessage)
 </script>
 
