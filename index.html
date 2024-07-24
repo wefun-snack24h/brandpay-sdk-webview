@@ -169,12 +169,34 @@
       },
     })
   }
+
+  const paymentData = {
+    data: JSON.stringify({
+      key: 'REQUEST_PAYMENT',
+      initData: {
+        clientKey: 'test_ck_GePWvyJnrKRJ4BOqqyZ6VgLzN97E',
+        customerKey: '1b53c60b-919a-4d78-b066-fbb1e1676b1f',
+      },
+      args: {
+        amount: {
+          currency: 'KRW',
+          value: 50000,
+        },
+        orderId: "8t-q_UKCPV5MTXWFcHPrR",
+        orderName: '토스 티셔츠 외 2건',
+        customerEmail: 'test@snack24h.com',
+        customerMobilePhone: '01012341234',
+        customerName: '김토스',
+      }
+    })
+  }
 </script>
 
 <div class="wrapper">
   <img src="https://image.snack24h.com/static/images/wefun-logo.png" alt="위펀 로고"
        onclick="ACTIONS.GO_BACK()"/>
   <button onclick="handleMessage(addCard)">카드등록</button>
+  <button onclick="handleMessage(addCard)">결제하기</button>
 </div>
 </body>
 </html>
