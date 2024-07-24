@@ -61,18 +61,24 @@
 
   const ACTIONS = {
     INIT_BRAND_PAY: (data) => {
-      reactNativeWebview.postMessage(JSON.stringify({message: 'INIT_BRAND_PAY'}))
-      const {clientKey, customerKey, redirectUrl} = data
-      const tossPayments = TossPayments(clientKey)
-      brandpay = tossPayments.brandpay({customerKey, redirectUrl})
+      try {
+        reactNativeWebview?.postMessage(JSON.stringify({message: 'INIT_BRAND_PAY'}))
+        console.log('INIT_BRAND_PAY')
+        const {clientKey, customerKey, redirectUrl} = data
+        const tossPayments = TossPayments(clientKey)
+        brandpay = tossPayments.brandpay({customerKey, redirectUrl})
+      } catch (e) {
+        ACTIONS.ERROR_HANDLER(e, 'INIT_BRAND_PAY')
+      }
     },
     ADD_PAYMENT_METHOD: async () => {
       try {
-        reactNativeWebview.postMessage(JSON.stringify({message: 'ADD_PAYMENT_METHOD'}))
+        reactNativeWebview?.postMessage(JSON.stringify({message: 'ADD_PAYMENT_METHOD'}))
+        console.log('ADD_PAYMENT_METHOD')
         await brandpay.addPaymentMethod()
         const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS'}
         const sendMessage = JSON.stringify(sendObj)
-        reactNativeWebview.postMessage(sendMessage)
+        reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
         ACTIONS.ERROR_HANDLER(e, 'ADD_PAYMENT_METHOD')
@@ -80,11 +86,12 @@
     },
     REQUEST_PAYMENT: async (paymentData) => {
       try {
-        reactNativeWebview.postMessage(JSON.stringify({message: 'REQUEST_PAYMENT'}))
+        reactNativeWebview?.postMessage(JSON.stringify({message: 'REQUEST_PAYMENT'}))
+        console.log('REQUEST_PAYMENT')
         const methods = await brandpay.requestPayment(paymentData)
         const sendObj = {key: 'REQUEST_PAYMENT', status: 'SUCCESS', data: methods}
         const sendMessage = JSON.stringify(sendObj)
-        reactNativeWebview.postMessage(sendMessage)
+        reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
         ACTIONS.ERROR_HANDLER(e, 'REQUEST_PAYMENT')
@@ -92,21 +99,22 @@
     },
     OPEN_SETTINGS: async () => {
       try {
-        reactNativeWebview.postMessage(JSON.stringify({message: 'OPEN_SETTINGS'}))
+        reactNativeWebview?.postMessage(JSON.stringify({message: 'OPEN_SETTINGS'}))
+        console.log('OPEN_SETTINGS')
         await brandpay.openSettings()
         const sendObj = {key: 'OPEN_SETTINGS', status: 'SUCCESS'}
         const sendMessage = JSON.stringify(sendObj)
-        reactNativeWebview.postMessage(sendMessage)
+        reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
         ACTIONS.ERROR_HANDLER(e, 'OPEN_SETTINGS')
       }
     },
     GO_BACK: () => {
-      reactNativeWebview.postMessage(JSON.stringify({message: 'GO_BACK'}))
+      reactNativeWebview?.postMessage(JSON.stringify({message: 'GO_BACK'}))
       const sendObj = {key: 'GO_BACK', status: 'FAILED'}
       const sendMessage = JSON.stringify(sendObj)
-      reactNativeWebview.postMessage(sendMessage)
+      reactNativeWebview?.postMessage(sendMessage)
       receiver.removeEventListener('message', handleMessage)
     },
     ERROR_HANDLER: (e, occurredSite) => {
@@ -121,37 +129,52 @@
       }
 
       const sendMessage = JSON.stringify(sendObj)
-      reactNativeWebview.postMessage(sendMessage)
+      reactNativeWebview?.postMessage(sendMessage)
       receiver.removeEventListener('message', handleMessage)
     }
   }
 
   const handleMessage = (event) => {
     try {
-      reactNativeWebview.postMessage(JSON.stringify(event))
+      console.log(event)
+      reactNativeWebview?.postMessage(JSON.stringify(event))
       const data = !event.data || event.data === 'undefined' ? null : JSON.parse(event.data)
 
+      console.log(data)
       if (data === null) {
         throw new Error('data 없음')
       }
 
       if (brandpay === null) {
-        reactNativeWebview.postMessage(JSON.stringify({message: '브랜드페이 객체 생성'}))
+        reactNativeWebview?.postMessage(JSON.stringify({message: '브랜드페이 객체 생성'}))
         ACTIONS.INIT_BRAND_PAY(data.initData)
       }
 
       ACTIONS[data.key](data?.args)
     } catch (e) {
-      reactNativeWebview.postMessage(JSON.stringify({message: e.message}))
+      reactNativeWebview?.postMessage(JSON.stringify({message: e.message}))
     }
   }
 
   receiver.addEventListener('message', handleMessage)
 </script>
+<script>
+  const addCard = {
+    data: JSON.stringify({
+      key: 'ADD_PAYMENT_METHOD',
+      initData: {
+        clientKey: 'test_ck_GePWvyJnrKRJ4BOqqyZ6VgLzN97E',
+        customerKey: '1b53c60b-919a-4d78-b066-fbb1e1676b1f',
+        redirectUrl: "https://api.wefun.co.kr/wefun24/v1/payments/callback-auth"
+      },
+    })
+  }
+</script>
 
 <div class="wrapper">
   <img src="https://image.snack24h.com/static/images/wefun-logo.png" alt="위펀 로고"
        onclick="ACTIONS.GO_BACK()"/>
+  <button onclick="handleMessage(addCard)">카드등록</button>
 </div>
 </body>
 </html>
