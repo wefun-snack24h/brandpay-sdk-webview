@@ -166,6 +166,7 @@
 <script>
   var customerKey = '1b53c60b-919a-4d78-b066-fbb1e1676b1f'
   var redirectUrl = 'https://api.wefun.co.kr/wefun24/v1/payments/callback-auth'
+  var paymentOrderId = '8t-q_UKCPV5MTXWFcHPrR'
 
   const addCard = {
     data: JSON.stringify({
@@ -190,7 +191,7 @@
           currency: 'KRW',
           value: 50000,
         },
-        orderId: "8t-q_UKCPV5MTXWFcHPrR",
+        orderId: paymentOrderId,
         orderName: '토스 티셔츠 외 2건',
         customerEmail: 'test@snack24h.com',
         customerName: '김토스',
@@ -217,7 +218,7 @@
   }
 
   const handleChangePaymentOrderId = (e) => {
-    paymentData.args.orderId = e.target.value
+    paymentOrderId = e.target.value
   }
 </script>
 
