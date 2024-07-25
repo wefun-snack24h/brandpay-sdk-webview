@@ -166,9 +166,9 @@
 <script>
   var customerKey = '1b53c60b-919a-4d78-b066-fbb1e1676b1f'
   var redirectUrl = 'https://api.wefun.co.kr/wefun24/v1/payments/callback-auth'
-  var paymentOrderId = '8t-q_UKCPV5MTXWFcHPrR'
+  let paymentOrderId = '8t-q_UKCPV5MTXWFcHPrR'
 
-  const addCard = {
+  const addCard = (customerKey, redirectUrl) => ({
     data: JSON.stringify({
       key: 'ADD_PAYMENT_METHOD',
       initData: {
@@ -177,9 +177,9 @@
         redirectUrl
       },
     })
-  }
+  })
 
-  const paymentData = {
+  const paymentData = (paymentOrderId) => ({
     data: JSON.stringify({
       key: 'REQUEST_PAYMENT',
       initData: {
@@ -197,9 +197,9 @@
         customerName: '김토스',
       }
     })
-  }
+  })
 
-  const openSettingData = {
+  const openSettingData = (customerKey) => ({
     data: JSON.stringify({
       key: 'OPEN_SETTINGS',
       initData: {
@@ -207,7 +207,7 @@
         customerKey,
       },
     })
-  }
+  })
 
   const handleChangeCustomerKey = (e) => {
     customerKey = e.target.value
@@ -229,7 +229,7 @@
   <div>
     <strong>customerKey 등록</strong>
     <div>
-      <input type="text" onchange="handleChangeCustomerKey"/>
+      <input type="text" onchange="handleChangeCustomerKey(event)"/>
       <button>등록</button>
     </div>
   </div>
@@ -237,7 +237,7 @@
   <div>
     <strong>redirectUrl 등록</strong>
     <div>
-      <input type="text" onchange="handleChangeRedirectUrl"/>
+      <input type="text" onchange="handleChangeRedirectUrl(event)"/>
       <button>등록</button>
     </div>
   </div>
@@ -245,14 +245,14 @@
   <div>
     <strong>paymentOrderId 수정</strong>
     <div>
-      <input type="text" onchange="handleChangePaymentOrderId"/>
+      <input type="text" onchange="handleChangePaymentOrderId(event)"/>
       <button>수정</button>
     </div>
   </div>
 
-  <button onclick="handleMessage(addCard)">카드등록</button>
-  <button onclick="handleMessage(paymentData)">결제하기</button>
-  <button onclick="handleMessage(openSettingData)">결제관리</button>
+  <button onclick="handleMessage(addCard(customerKey, redirectUrl))">카드등록</button>
+  <button onclick="handleMessage(paymentData(paymentOrderId))">결제하기</button>
+  <button onclick="handleMessage(openSettingData(customerKey))">결제관리</button>
 </div>
 </body>
 </html>
