@@ -129,6 +129,7 @@
         }
       }
 
+      console.log(sendObj)
       const sendMessage = JSON.stringify(sendObj)
       reactNativeWebview?.postMessage(sendMessage)
       receiver.removeEventListener('message', handleMessage)
