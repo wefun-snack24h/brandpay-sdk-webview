@@ -78,6 +78,7 @@
         console.log('ADD_PAYMENT_METHOD')
         await brandpay.addPaymentMethod()
         const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS'}
+        console.log(sendObj)
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
@@ -91,6 +92,7 @@
         console.log('REQUEST_PAYMENT')
         const methods = await brandpay.requestPayment(paymentData)
         const sendObj = {key: 'REQUEST_PAYMENT', status: 'SUCCESS', data: methods}
+        console.log(sendObj)
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
@@ -104,6 +106,7 @@
         console.log('OPEN_SETTINGS')
         await brandpay.openSettings()
         const sendObj = {key: 'OPEN_SETTINGS', status: 'SUCCESS'}
+        console.log(sendObj)
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
@@ -212,6 +215,10 @@
   const handleChangeRedirectUrl = (e) => {
     customerKey = e.target.value
   }
+
+  const handleChangePaymentOrderId = (e) => {
+    paymentData.args.orderId = e.target.value
+  }
 </script>
 
 <div class="wrapper">
@@ -231,6 +238,14 @@
     <div>
       <input type="text" onchange="handleChangeRedirectUrl"/>
       <button>등록</button>
+    </div>
+  </div>
+
+  <div>
+    <strong>paymentOrderId 수정</strong>
+    <div>
+      <input type="text" onchange="handleChangePaymentOrderId"/>
+      <button>수정</button>
     </div>
   </div>
 
