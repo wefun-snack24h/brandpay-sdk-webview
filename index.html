@@ -47,6 +47,11 @@
       scrollbar-width: none;
     }
 
+    .wrapper img {
+      width: 64vw;
+      height: 64vw;
+    }
+
     .wrapper::-webkit-scrollbar {
       display: none;
     }
@@ -64,7 +69,6 @@
     INIT_BRAND_PAY: (data) => {
       try {
         reactNativeWebview?.postMessage(JSON.stringify({message: 'INIT_BRAND_PAY'}))
-        console.log('INIT_BRAND_PAY')
         const {clientKey, customerKey, redirectUrl} = data
         const tossPayments = TossPayments(clientKey)
         brandpay = tossPayments.brandpay({customerKey, redirectUrl})
@@ -75,10 +79,8 @@
     ADD_PAYMENT_METHOD: async () => {
       try {
         reactNativeWebview?.postMessage(JSON.stringify({message: 'ADD_PAYMENT_METHOD'}))
-        console.log('ADD_PAYMENT_METHOD')
         await brandpay.addPaymentMethod()
         const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS'}
-        console.log(sendObj)
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
@@ -86,27 +88,11 @@
         ACTIONS.ERROR_HANDLER(e, 'ADD_PAYMENT_METHOD')
       }
     },
-    REQUEST_PAYMENT: async (paymentData) => {
-      try {
-        reactNativeWebview?.postMessage(JSON.stringify({message: 'REQUEST_PAYMENT'}))
-        console.log('REQUEST_PAYMENT')
-        const methods = await brandpay.requestPayment(paymentData)
-        const sendObj = {key: 'REQUEST_PAYMENT', status: 'SUCCESS', data: methods}
-        console.log(sendObj)
-        const sendMessage = JSON.stringify(sendObj)
-        reactNativeWebview?.postMessage(sendMessage)
-        receiver.removeEventListener('message', handleMessage)
-      } catch (e) {
-        ACTIONS.ERROR_HANDLER(e, 'REQUEST_PAYMENT')
-      }
-    },
     OPEN_SETTINGS: async () => {
       try {
         reactNativeWebview?.postMessage(JSON.stringify({message: 'OPEN_SETTINGS'}))
-        console.log('OPEN_SETTINGS')
         await brandpay.openSettings()
         const sendObj = {key: 'OPEN_SETTINGS', status: 'SUCCESS'}
-        console.log(sendObj)
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
@@ -132,7 +118,6 @@
         }
       }
 
-      console.log(sendObj)
       const sendMessage = JSON.stringify(sendObj)
       reactNativeWebview?.postMessage(sendMessage)
       receiver.removeEventListener('message', handleMessage)
@@ -141,17 +126,13 @@
 
   const handleMessage = (event) => {
     try {
-      console.log(event)
-      reactNativeWebview?.postMessage(JSON.stringify(event))
       const data = !event.data || event.data === 'undefined' ? null : JSON.parse(event.data)
 
-      console.log(data)
       if (data === null) {
         throw new Error('data 없음')
       }
 
       if (brandpay === null) {
-        reactNativeWebview?.postMessage(JSON.stringify({message: '브랜드페이 객체 생성'}))
         ACTIONS.INIT_BRAND_PAY(data.initData)
       }
 
@@ -163,96 +144,11 @@
 
   receiver.addEventListener('message', handleMessage)
 </script>
-<script>
-  var customerKey = '1b53c60b-919a-4d78-b066-fbb1e1676b1f'
-  var redirectUrl = 'https://api.wefun.co.kr/wefun24/v1/payments/callback-auth'
-  let paymentOrderId = '8t-q_UKCPV5MTXWFcHPrR'
-
-  const addCard = (customerKey, redirectUrl) => ({
-    data: JSON.stringify({
-      key: 'ADD_PAYMENT_METHOD',
-      initData: {
-        clientKey: 'test_ck_GePWvyJnrKRJ4BOqqyZ6VgLzN97E',
-        customerKey,
-        redirectUrl
-      },
-    })
-  })
-
-  const paymentData = (paymentOrderId) => ({
-    data: JSON.stringify({
-      key: 'REQUEST_PAYMENT',
-      initData: {
-        clientKey: 'test_ck_GePWvyJnrKRJ4BOqqyZ6VgLzN97E',
-        customerKey,
-      },
-      args: {
-        amount: {
-          currency: 'KRW',
-          value: 50000,
-        },
-        orderId: paymentOrderId,
-        orderName: '토스 티셔츠 외 2건',
-        customerEmail: 'test@snack24h.com',
-        customerName: '김토스',
-      }
-    })
-  })
-
-  const openSettingData = (customerKey) => ({
-    data: JSON.stringify({
-      key: 'OPEN_SETTINGS',
-      initData: {
-        clientKey: 'test_ck_GePWvyJnrKRJ4BOqqyZ6VgLzN97E',
-        customerKey,
-      },
-    })
-  })
-
-  const handleChangeCustomerKey = (e) => {
-    customerKey = e.target.value
-  }
-
-  const handleChangeRedirectUrl = (e) => {
-    customerKey = e.target.value
-  }
-
-  const handleChangePaymentOrderId = (e) => {
-    paymentOrderId = e.target.value
-  }
-</script>
 
 <div class="wrapper">
-  <img src="https://image.snack24h.com/static/images/wefun-logo.png" alt="위펀 로고"
+  <img src="https://image.snack24h.com/static/images/wefun-logo.gif" alt="위펀 로고"
        onclick="ACTIONS.GO_BACK()"/>
 
-  <div>
-    <strong>customerKey 등록</strong>
-    <div>
-      <input type="text" onchange="handleChangeCustomerKey(event)"/>
-      <button>등록</button>
-    </div>
-  </div>
-
-  <div>
-    <strong>redirectUrl 등록</strong>
-    <div>
-      <input type="text" onchange="handleChangeRedirectUrl(event)"/>
-      <button>등록</button>
-    </div>
-  </div>
-
-  <div>
-    <strong>paymentOrderId 수정</strong>
-    <div>
-      <input type="text" onchange="handleChangePaymentOrderId(event)"/>
-      <button>수정</button>
-    </div>
-  </div>
-
-  <button onclick="handleMessage(addCard(customerKey, redirectUrl))">카드등록</button>
-  <button onclick="handleMessage(paymentData(paymentOrderId))">결제하기</button>
-  <button onclick="handleMessage(openSettingData(customerKey))">결제관리</button>
 </div>
 </body>
 </html>
