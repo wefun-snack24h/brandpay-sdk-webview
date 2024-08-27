@@ -80,14 +80,13 @@
     ADD_PAYMENT_METHOD: async () => {
       try {
         reactNativeWebview?.postMessage(JSON.stringify({message: 'ADD_PAYMENT_METHOD'}))
-        await brandpay.addPaymentMethod()
         document.getElementById('wefunLogo').style.display = 'none'
+        await brandpay.addPaymentMethod()
         const sendObj = {key: 'ADD_PAYMENT_METHOD', status: 'SUCCESS'}
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
-        document.getElementById('wefunLogo').style.display = 'none'
         reactNativeWebview?.postMessage(JSON.stringify({message: e.message}))
         ACTIONS.ERROR_HANDLER(e, 'ADD_PAYMENT_METHOD')
       }
@@ -95,14 +94,13 @@
     OPEN_SETTINGS: async () => {
       try {
         reactNativeWebview?.postMessage(JSON.stringify({message: 'OPEN_SETTINGS'}))
-        await brandpay.openSettings()
         document.getElementById('wefunLogo').style.display = 'none'
+        await brandpay.openSettings()
         const sendObj = {key: 'OPEN_SETTINGS', status: 'SUCCESS'}
         const sendMessage = JSON.stringify(sendObj)
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
-        document.getElementById('wefunLogo').style.display = 'none'
         reactNativeWebview?.postMessage(JSON.stringify({message: e.message}))
         ACTIONS.ERROR_HANDLER(e, 'OPEN_SETTINGS')
       }
