@@ -73,6 +73,7 @@
         const tossPayments = TossPayments(clientKey)
         brandpay = tossPayments.brandpay({customerKey, redirectUrl})
       } catch (e) {
+        reactNativeWebview?.postMessage(JSON.stringify({message: e.message}))
         ACTIONS.ERROR_HANDLER(e, 'INIT_BRAND_PAY')
       }
     },
@@ -85,6 +86,7 @@
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
+        reactNativeWebview?.postMessage(JSON.stringify({message: e.message}))
         ACTIONS.ERROR_HANDLER(e, 'ADD_PAYMENT_METHOD')
       }
     },
@@ -97,6 +99,7 @@
         reactNativeWebview?.postMessage(sendMessage)
         receiver.removeEventListener('message', handleMessage)
       } catch (e) {
+        reactNativeWebview?.postMessage(JSON.stringify({message: e.message}))
         ACTIONS.ERROR_HANDLER(e, 'OPEN_SETTINGS')
       }
     },
@@ -137,6 +140,7 @@
       }
 
       ACTIONS[data.key](data?.args)
+      document.getElementById('wefunLogo').style.display = 'none'
     } catch (e) {
       reactNativeWebview?.postMessage(JSON.stringify({message: e.message}))
     }
@@ -146,7 +150,7 @@
 </script>
 
 <div class="wrapper">
-  <img src="https://image.snack24h.com/static/images/wefun-logo.gif" alt="위펀 로고"
+  <img id="wefunLogo" src="https://image.snack24h.com/static/images/wefun-logo.gif" alt="위펀 로고"
        onclick="ACTIONS.GO_BACK()"/>
 
 </div>
